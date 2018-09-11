@@ -28,7 +28,8 @@ jobs:
       - run:
           name: "run integration tests"
           command: |
-            export GOOGLE_APPLICATION_CREDENTIALS=<(echo $GOOGLE_APPLICATION_CREDENTIALS_JSON  | base64 --decode )
+            echo $GOOGLE_APPLICATION_CREDENTIALS_JSON  | base64 --decode > GCP_KEY.json
+            export GOOGLE_APPLICATION_CREDENTIALS=GCP_KEY.json
             lein test :integration
 
   publish:
