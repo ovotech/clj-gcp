@@ -26,4 +26,4 @@
                    [["clojars" {:url           "https://clojars.org/repo"
                                 :username      :env ;; LEIN_USERNAME
                                 :password      :env ;; LEIN_PASSWORD
-                                :sign-releases false}]]}} })
+                                :sign-releases false}]]}})
