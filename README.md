@@ -6,6 +6,7 @@ Clojure utilities for the Google Cloud Platform.
 ## Usage
 
 [![Clojars Project](https://img.shields.io/clojars/v/ovotech/clj-gcp.svg)](https://clojars.org/ovotech/clj-gcp)
+[![CircleCI](https://circleci.com/gh/ovotech/clj-gcp/tree/master.svg?style=svg)](https://circleci.com/gh/ovotech/clj-gcp/tree/master)
 
 Mainly used through integrant:
 
