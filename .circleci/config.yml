@@ -25,7 +25,11 @@ jobs:
             - ~/.m2
           key: v1-dependencies-{{ checksum "project.clj" }}
 
-      - run: lein test :integration
+      - run:
+          name: "run integration tests"
+          command: |
+            export GOOGLE_APPLICATION_CREDENTIALS=<$(echo $GOOGLE_APPLICATION_CREDENTIALS_JSON  | base64 --decode )
+            lein test :integration
 
   publish:
     docker:
@@ -41,9 +45,6 @@ jobs:
           - v1-dependencies-
 
       - run:
-          name: "deploy to clojars"
-          command: |
-            export GOOGLE_APPLICATION_CREDENTIALS=<$(echo $GOOGLE_APPLICATION_CREDENTIALS_JSON  | base64 --decode )
             lein with-profile ci deploy clojars
 
 workflows:
