@@ -1,6 +1,6 @@
 # clj-gcp
 
-A Clojure library designed to ... well, that part is up to you.
+Clojure utilities for the Google Cloud Platform.
 
 ## Usage
 
