@@ -135,18 +135,18 @@
                      nil))]
       {:name "pub-sub", :healthy? (boolean sub)})))
 
-(defmethod ig/pre-init-spec :common.clients.pub-sub/subscriber
+(defmethod ig/pre-init-spec :clj-gcp.pub-sub/subscriber
   [_]
   ::subscriber-opts)
 
-(defmethod ig/init-key :common.clients.pub-sub/subscriber
+(defmethod ig/init-key :clj-gcp.pub-sub/subscriber
   [_ opts]
   (start-subscriber opts))
 
-(defmethod ig/halt-key! :common.clients.pub-sub/subscriber
+(defmethod ig/halt-key! :clj-gcp.pub-sub/subscriber
   [_ stop-subscriber]
   stop-subscriber)
 
-(defmethod ig/init-key :common.clients.pub-sub/subscriber.healthcheck
+(defmethod ig/init-key :clj-gcp.pub-sub/subscriber.healthcheck
   [_ opts]
   (->healthcheck opts))

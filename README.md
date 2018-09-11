@@ -10,7 +10,7 @@ Mainly used through integrant:
 
 ```clojure
 ;; ig-config.edn
-:clj-gcp.pub-sub.core/subscriber
+:clj-gcp.pub-sub/subscriber
 {:metrics-registry     #ig/ref :metrics/registry ;; a iapetos metric registry
  :handler              #ig/ref :pubsub/handler ;; a fn, described below
  :project-id                   "my-gcp-project"
