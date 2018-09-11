@@ -4,6 +4,8 @@ Clojure utilities for the Google Cloud Platform.
 
 ## Usage
 
+[![Clojars Project](https://img.shields.io/clojars/v/ovotech/clj-gcp.svg)](https://clojars.org/ovotech/clj-gcp)
+
 Mainly used through integrant:
 
 ```clojure
