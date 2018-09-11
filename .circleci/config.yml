@@ -2,6 +2,7 @@
 # LEIN_USERNAME
 # LEIN_PASSWORD
 # GCP_PROJECT_ID
+# GOOGLE_APPLICATION_CREDENTIALS_JSON (base64 encoded)
 version: 2
 jobs:
   unit_test:
@@ -39,7 +40,11 @@ jobs:
           - v1-dependencies-{{ checksum "project.clj" }}
           - v1-dependencies-
 
-      - run: lein with-profile ci deploy clojars
+      - run:
+          name: "deploy to clojars"
+          command: |
+            export GOOGLE_APPLICATION_CREDENTIALS=<$(echo $GOOGLE_APPLICATION_CREDENTIALS_JSON  | base64 --decode )
+            lein with-profile ci deploy clojars
 
 workflows:
   version: 2
