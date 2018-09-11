@@ -2,6 +2,7 @@
 
 Clojure utilities for the Google Cloud Platform.
 
+
 ## Usage
 
 [![Clojars Project](https://img.shields.io/clojars/v/ovotech/clj-gcp.svg)](https://clojars.org/ovotech/clj-gcp)
@@ -39,6 +40,19 @@ The function `:handler` takes:
  :ok? false
  :retry? true}
 ```
+
+
+### Healthcheck
+
+There's also a healthcheck integrant key available:
+
+```clojure
+;; ig-config.edn
+:clj-gcp.pub-sub/subscriber.healthcheck
+{:project-id     "my-gcp-project"
+ :subscription-id "LOCAL_DEV.bucket-notifications.my-service"}
+```
+
 
 ## Running Tests
 
