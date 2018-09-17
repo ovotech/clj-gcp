@@ -47,7 +47,7 @@
                                    :clj-gcp.pub-sub.core/message-count
                                    {:description "life-cycle of pub-sub msgs",
                                     :labels      [:state]})))}
-            _               (tu/is-valid ::sut/subscriber-opts opts)
+            _               (tu/is-valid ::sut/subscriber.opts opts)
             stop-subscriber (sut/start-subscriber opts)]
         (f topic-id sub-id stop-subscriber)))))
 
