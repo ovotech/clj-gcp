@@ -5,7 +5,7 @@
 # GOOGLE_APPLICATION_CREDENTIALS_JSON (base64 encoded)
 version: 2
 jobs:
-  unit_test:
+  integration_test:
     docker:
       - image: circleci/clojure:lein-2.8.1
     environment:
@@ -50,12 +50,12 @@ jobs:
 
 workflows:
   version: 2
-  kafka-avro-confluent:
+  lib:
     jobs:
-      - unit_test
+      - integration_test
       - publish:
           requires:
-            - unit_test
+            - integration_test
           filters:
             branches:
               only: master
