@@ -20,13 +20,13 @@ Mainly used through integrant:
  :subscription-id              "LOCAL_DEV.bucket-notifications.my-service"}
 ```
 
-The function `:handler` takes:
+The function `:handler` takes **a seq of maps that contain**:
 ```clojure
-  { ,,, pub-sub message fields (always deserialized as JSON) ,,,
-   :pubsub/attributes {:eventType "OBJECT_FINALIZE"}
-   :pubsub/ack-id     "0000000ACK"}
+{,,, pub-sub message fields (always deserialized as JSON) ,,,
+ :pubsub/attributes {:eventType "OBJECT_FINALIZE"}
+ :pubsub/ack-id     "0000000ACK"}
 ```
-... and should return at least:
+... and should return **a seq of maps that contain at least**:
 ```clojure
 ;; these will be acked:
 {:pubsub/ack-id     "0000000ACK"
