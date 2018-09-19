@@ -11,7 +11,7 @@ Mainly used through integrant:
 
 ```clojure
 ;; ig-config.edn
-:clj-gcp.pub-sub/subscriber
+:clj-gcp.pub-sub.core/subscriber
 {:metrics-registry     #ig/ref :metrics/registry ;; a iapetos metric registry
  :handler              #ig/ref :pubsub/handler ;; a fn, described below
  :project-id                   "my-gcp-project"
@@ -20,13 +20,13 @@ Mainly used through integrant:
  :subscription-id              "LOCAL_DEV.bucket-notifications.my-service"}
 ```
 
-The function `:handler` takes:
+The function `:handler` takes **a seq of maps that contain**:
 ```clojure
-  { ,,, pub-sub message fields (always deserialized as JSON) ,,,
-   :pubsub/attributes {:eventType "OBJECT_FINALIZE"}
-   :pubsub/ack-id     "0000000ACK"}
+{,,, pub-sub message fields (always deserialized as JSON) ,,,
+ :pubsub/attributes {:eventType "OBJECT_FINALIZE"}
+ :pubsub/ack-id     "0000000ACK"}
 ```
-... and should return at least:
+... and should return **a seq of maps that contain at least**:
 ```clojure
 ;; these will be acked:
 {:pubsub/ack-id     "0000000ACK"
@@ -48,7 +48,7 @@ There's also a healthcheck integrant key available:
 
 ```clojure
 ;; ig-config.edn
-:clj-gcp.pub-sub/subscriber.healthcheck
+:clj-gcp.pub-sub.core/subscriber.healthcheck
 {:project-id     "my-gcp-project"
  :subscription-id "LOCAL_DEV.bucket-notifications.my-service"}
 ```

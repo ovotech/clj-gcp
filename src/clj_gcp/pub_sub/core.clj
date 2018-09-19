@@ -22,14 +22,15 @@
   pos-int?)
 (s/def ::handler
   fn?)
-(s/def ::subscriber-opts
-  (s/keys :req-un
-          [::handler
-           ::project-id
-           ::subscription-id
-           ::metrics-registry]
-          :opt-un
-          [::pull-max-messages]))
+(s/def ::subscriber.opts
+  (s/keys :req-un [::handler
+                   ::project-id
+                   ::subscription-id
+                   ::metrics-registry]
+          :opt-un [::pull-max-messages]))
+(s/def ::subscriber.healthcheck.opts
+  (s/keys :req-un [::project-id
+                   ::subscription-id]))
 
 (defn- pull-msgs
   [^SubscriberStub subscriber ^String subscription-name max-messages]
@@ -135,18 +136,22 @@
                      nil))]
       {:name "pub-sub", :healthy? (boolean sub)})))
 
-(defmethod ig/pre-init-spec :clj-gcp.pub-sub/subscriber
+(defmethod ig/pre-init-spec ::subscriber
   [_]
-  ::subscriber-opts)
+  ::subscriber.opts)
 
-(defmethod ig/init-key :clj-gcp.pub-sub/subscriber
+(defmethod ig/init-key ::subscriber
   [_ opts]
   (start-subscriber opts))
 
-(defmethod ig/halt-key! :clj-gcp.pub-sub/subscriber
+(defmethod ig/halt-key! ::subscriber
   [_ stop-subscriber]
   stop-subscriber)
 
-(defmethod ig/init-key :clj-gcp.pub-sub/subscriber.healthcheck
+(defmethod ig/pre-init-spec ::subscriber.healthcheck
+  [_]
+  ::subscriber.healthcheck.opts)
+
+(defmethod ig/init-key ::subscriber.healthcheck
   [_ opts]
   (->healthcheck opts))
