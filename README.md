@@ -7,6 +7,8 @@ Clojure utilities for the Google Cloud Platform.
 
 [![Clojars Project](https://img.shields.io/clojars/v/ovotech/clj-gcp.svg)](https://clojars.org/ovotech/clj-gcp)
 
+
+### Pub-Sub
 Mainly used through integrant:
 
 ```clojure
@@ -42,7 +44,7 @@ The function `:handler` takes **a seq of maps that contain**:
 ```
 
 
-### Healthcheck
+#### Healthcheck
 
 There's also a healthcheck integrant key available:
 
@@ -51,6 +53,56 @@ There's also a healthcheck integrant key available:
 :clj-gcp.pub-sub.core/subscriber.healthcheck
 {:project-id     "my-gcp-project"
  :subscription-id "LOCAL_DEV.bucket-notifications.my-service"}
+```
+
+### Storage
+
+```clojure
+(let [sut                 (sut/->gcs-storage-client)
+      blob-name           (format "TEST_BLOBS/BLOB-%s.txt" (m/random-uuid))
+      exp-contentEncoding "utf-8"
+      exp-content         "hello!"
+      exp-metadata        {"hi" "foo"}
+      exp-contentType     "text/plain"]
+
+  ;; This is how you write a blob:
+  (with-open [out (Channels/newWriter
+                   (sut/blob-writer sut
+                                    bucket-name
+                                    blob-name
+                                    {:metadata        exp-metadata,
+                                     :contentType     exp-contentType,
+                                     :contentEncoding exp-contentEncoding})
+                   exp-contentEncoding)]
+    (.write out exp-content))
+
+  ;; ... and this is how you get it back
+  (let [{:keys [inputStream md5Hash contentType source
+                contentEncoding metadata],
+         :as   got}
+        (sut/get-blob sut bucket-name blob-name)]
+    (tu/is-valid ::sut/blob got)
+    (is (= (str "gs://" bucket-name "/" blob-name) source))
+    (is (= exp-contentType contentType))
+    (is (= exp-contentEncoding contentEncoding))
+    (is (= exp-metadata metadata))
+    (is (= exp-content (slurp inputStream)))))
+```
+
+Can also be used as an Integrant component:
+
+```
+;; ig-config.edn
+:common.clients.storage/client             nil
+:common.clients.storage/client.healthcheck nil
+```
+
+#### Testing implementation
+
+A test implementation based on the file system is available:
+
+```clojure
+(sut/->file-system-storage-client base-path)
 ```
 
 

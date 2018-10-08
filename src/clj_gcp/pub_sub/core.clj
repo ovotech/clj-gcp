@@ -5,19 +5,17 @@
             [clojure.string :as string]
             [clojure.tools.logging :as log]
             [iapetos.core :as prometheus]
-            [integrant.core :as ig])
+            [integrant.core :as ig]
+            [clj-gcp.common.specs :as cs])
   (:import com.google.api.gax.rpc.DeadlineExceededException
            [com.google.cloud.pubsub.v1.stub GrpcSubscriberStub SubscriberStub SubscriberStubSettings]
            [com.google.pubsub.v1 AcknowledgeRequest ProjectSubscriptionName PubsubMessage PullRequest ReceivedMessage]
            java.util.concurrent.TimeUnit))
 
-(s/def ::non-blank-string
-  (s/and string? (complement string/blank?)))
-
 (s/def ::project-id
-  ::non-blank-string)
+  ::cs/non-blank-string)
 (s/def ::subscription-id
-  ::non-blank-string)
+  ::cs/non-blank-string)
 (s/def ::max-messages
   pos-int?)
 (s/def ::handler
