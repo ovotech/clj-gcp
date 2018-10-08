@@ -30,30 +30,32 @@
   (swap! seen-reqs conj req))
 
 (defn with-subscriber
-  [seen-reqs f]
-  (with-random-topic+subscription gcp-project-id
-    (fn [topic-id sub-id]
-      (let [opts            {:project-id      gcp-project-id
-                             :topic-id        topic-id
-                             :subscription-id sub-id
-                             :handler         (fn [msgs]
-                                                (doseq [msg msgs]
-                                                  (see-req! seen-reqs msg))
-                                                (map #(assoc % :ok? true) msgs))
-                             :metrics-registry
-                             (-> (prometheus/collector-registry)
-                                 (prometheus/register
-                                  (prometheus/counter
-                                   :clj-gcp.pub-sub.core/message-count
-                                   {:description "life-cycle of pub-sub msgs",
-                                    :labels      [:state]})))}
-            _               (tu/is-valid ::sut/subscriber.opts opts)
-            stop-subscriber (sut/start-subscriber opts)]
-        (f topic-id sub-id stop-subscriber)))))
+  ([seen-reqs f]
+   (with-subscriber seen-reqs sut/start-subscriber f))
+  ([seen-reqs start-sub-f f]
+   (with-random-topic+subscription gcp-project-id
+     (fn [topic-id sub-id]
+       (let [opts            {:project-id      gcp-project-id
+                              :topic-id        topic-id
+                              :subscription-id sub-id
+                              :handler         (fn [msgs]
+                                                 (doseq [msg msgs]
+                                                   (see-req! seen-reqs msg))
+                                                 (map #(assoc % :ok? true) msgs))
+                              :metrics-registry
+                              (-> (prometheus/collector-registry)
+                                  (prometheus/register
+                                   (prometheus/counter
+                                    :clj-gcp.pub-sub.core/message-count
+                                    {:description "life-cycle of pub-sub msgs",
+                                     :labels      [:state]})))}
+             _               (tu/is-valid ::sut/subscriber.opts opts)
+             stop-subscriber (start-sub-f opts)]
+         (f topic-id sub-id stop-subscriber))))))
 
-(deftest  ^:integration subscriber-test
+(deftest  ^:integration notification-subscriber-test
   (let [seen-msgs (atom [])]
-    (with-subscriber seen-msgs
+    (with-subscriber seen-msgs sut/start-notification-subscriber
       (fn [topic-id subscription-id stop-subscriber]
         (testing "getting messages"
           (let [msg1 (json/generate-string {:a "A" :b "B"})
@@ -81,3 +83,30 @@
 
             (stop-subscriber)))))))
 
+(deftest  ^:integration subscriber-test
+  (let [seen-msgs (atom [])]
+    (with-subscriber seen-msgs
+      (fn [topic-id subscription-id stop-subscriber]
+        (testing "getting messages"
+          (let [msg1 "THIS IS MESSAGE ONE"
+                msg2 "THIS IS MESSAGE TWO"]
+            (mqu/pubsub-publish msg1 {"eventType" "SOME_TYPE"} gcp-project-id topic-id)
+            (mqu/pubsub-publish msg2 {"eventType" "SOME_OTHER_TYPE"} gcp-project-id topic-id)
+            (tu/is-eventually (= 2 (count @seen-msgs))
+                              :timeout 20000)
+            ;; no guarantees on ordering with PubSub (so using a set to check messages arrived)
+            (let [actual          @seen-msgs
+                  without-ack-id  (map #(dissoc % :pubsub/ack-id) actual)
+                  wo-ack-set      (set without-ack-id)]
+
+              ;; ack-ids are generate by GCP so just check they are added to the incoming message
+              (is (every? #(not (string/blank? (:pubsub/ack-id %))) actual))
+
+              (is (wo-ack-set
+                   {:pubsub/attributes  {:eventType "SOME_TYPE"}
+                    :pubsub/payload     "THIS IS MESSAGE ONE"}))
+              (is (wo-ack-set
+                   {:pubsub/attributes  {:eventType "SOME_OTHER_TYPE"}
+                    :pubsub/payload     "THIS IS MESSAGE TWO"})))
+
+            (stop-subscriber)))))))

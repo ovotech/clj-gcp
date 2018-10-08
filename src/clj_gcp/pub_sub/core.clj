@@ -61,12 +61,12 @@
   (let [^PubsubMessage msg (.getMessage rcv-msg)
         payload (-> msg
                     .getData
-                    .toStringUtf8
-                    (json/parse-string true))
+                    .toStringUtf8)
         ; clojure.walk/keywordize-keys doesn't work with Java Maps!
         attributes (into {} (for [[k v] (.getAttributesMap msg)] [(keyword k) v]))]
-    (assoc payload :pubsub/attributes attributes
-           :pubsub/ack-id (.getAckId rcv-msg))))
+    {:pubsub/attributes attributes
+     :pubsub/ack-id     (.getAckId rcv-msg)
+     :pubsub/payload    payload}))
 
 (defn ack?
   "Returns whether or not to ACK a result or not.
@@ -155,3 +155,28 @@
 (defmethod ig/init-key ::subscriber.healthcheck
   [_ opts]
   (->healthcheck opts))
+
+(defn msg->notification
+  [msg]
+  (let [notification (-> msg
+                         :pubsub/payload
+                         (json/parse-string true))
+        no-payload  (dissoc msg :pubsub/payload)]
+    (merge notification
+           no-payload)))
+
+(defn start-notification-subscriber
+  [{:keys [handler] :as opts}]
+  (let [notif-handler #(->> %
+                            (map msg->notification)
+                            handler)
+        new-opts      (assoc opts :handler notif-handler)]
+    (start-subscriber new-opts)))
+
+(defmethod ig/init-key ::notification-subscriber
+  [_ opts]
+  (start-notification-subscriber opts))
+
+(defmethod ig/halt-key! ::notification-subscriber
+  [_ stop-subscriber]
+  stop-subscriber)
