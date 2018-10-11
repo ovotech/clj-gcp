@@ -7,7 +7,7 @@
   (:import java.nio.channels.Channels))
 
 (def bucket-name "flow-platform-test-blobs")
-(def gcp-project-id (System/getenv "GCP_PROJECT_ID"))
+(defn gcp-project-id [] (System/getenv "GCP_PROJECT_ID"))
 
 (deftest ^:integration healthcheck
   (let [healthcheck (sut/gcs-healthcheck)]
