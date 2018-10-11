@@ -100,6 +100,7 @@
   ([project-id]
    (-> (StorageOptions/newBuilder)
        (.setProjectId project-id)
+       .build
        .getService
        ->GCSStorageClient)))
 
