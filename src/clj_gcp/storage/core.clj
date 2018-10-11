@@ -66,20 +66,20 @@
     {:keys [metadata contentType contentEncoding]}]
    (let [blob-info (-> (BlobInfo/newBuilder (BlobId/of bucket-name blob-name))
                        (cond-> contentEncoding (.setContentEncoding
-                                                 contentEncoding)
+                                                contentEncoding)
                                metadata (.setMetadata metadata)
                                contentType (.setContentType contentType))
                        (.build))
          nio-writer
-           (.writer gservice blob-info (make-array Storage$BlobWriteOption 0))]
+         (.writer gservice blob-info (make-array Storage$BlobWriteOption 0))]
      nio-writer)))
 
 (defrecord GCSStorageClient [^Storage gservice]
   StorageClient
-    (get-blob [this bucket-name blob-name]
-      (gcs-get-blob gservice bucket-name blob-name))
-    (blob-writer [this bucket-name blob-name opts]
-      (gcs-blob-writer gservice bucket-name blob-name opts)))
+  (get-blob [this bucket-name blob-name]
+    (gcs-get-blob gservice bucket-name blob-name))
+  (blob-writer [this bucket-name blob-name opts]
+    (gcs-blob-writer gservice bucket-name blob-name opts)))
 (alter-meta! #'->GCSStorageClient assoc :private true)
 
 (defn gcs-healthcheck
@@ -93,8 +93,15 @@
     {:name "google-storage", :healthy? healthy?}))
 
 (defn ->gcs-storage-client
-  []
-  (->GCSStorageClient (.getService (StorageOptions/getDefaultInstance))))
+  ([]
+   (-> (StorageOptions/getDefaultInstance)
+       .getService
+       ->GCSStorageClient))
+  ([project-id]
+   (-> (StorageOptions/newBuilder)
+       (.setProjectId project-id)
+       .getService
+       ->GCSStorageClient)))
 
 (defmethod ig/init-key :common.clients.storage/client
   [_ _]
@@ -157,9 +164,9 @@
 
 (defrecord FileSystemStorageClient [base-path]
   StorageClient
-    (get-blob [_ bucket blob-name] (fs-get-blob base-path bucket blob-name))
-    (blob-writer [_ bucket blob-name opts]
-      (fs-blob-writer base-path bucket blob-name opts)))
+  (get-blob [_ bucket blob-name] (fs-get-blob base-path bucket blob-name))
+  (blob-writer [_ bucket blob-name opts]
+    (fs-blob-writer base-path bucket blob-name opts)))
 (alter-meta! #'->FileSystemStorageClient assoc :private true)
 
 (defn ->file-system-storage-client

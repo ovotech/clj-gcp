@@ -7,6 +7,7 @@
   (:import java.nio.channels.Channels))
 
 (def bucket-name "flow-platform-test-blobs")
+(def gcp-project-id (System/getenv "GCP_PROJECT_ID"))
 
 (deftest ^:integration healthcheck
   (let [healthcheck (sut/gcs-healthcheck)]
@@ -14,7 +15,7 @@
     (is (:healthy? healthcheck))))
 
 (deftest ^:integration gcs-blob-e2e-test
-  (let [sut                 (sut/->gcs-storage-client)
+  (let [sut                 (sut/->gcs-storage-client (gcp-project-id))
         blob-name           (format "TEST_BLOBS/BLOB-%s.txt" (m/random-uuid))
         exp-contentEncoding "utf-8"
         exp-content         "mandi!"
@@ -43,37 +44,7 @@
         (is (= exp-content (slurp inputStream)))))))
 
 (deftest ^:integration gcs-get-non-existing-blob-test
-  (let [sut (sut/->gcs-storage-client)]
+  (let [sut (sut/->gcs-storage-client (gcp-project-id))]
     (is (thrown?
          clojure.lang.ExceptionInfo
          (sut/get-blob sut bucket-name "I_DO_NOT_EXIST.md")))))
-
-(let [sut                 (sut/->gcs-storage-client)
-      blob-name           (format "TEST_BLOBS/BLOB-%s.txt" (m/random-uuid))
-      exp-contentEncoding "utf-8"
-      exp-content         "hello!"
-      exp-metadata        {"hi" "foo"}
-      exp-contentType     "text/plain"]
-
-  ;; This is how you write a blob:
-  (with-open [out (Channels/newWriter
-                   (sut/blob-writer sut
-                                    bucket-name
-                                    blob-name
-                                    {:metadata        exp-metadata,
-                                     :contentType     exp-contentType,
-                                     :contentEncoding exp-contentEncoding})
-                   exp-contentEncoding)]
-    (.write out exp-content))
-
-  ;; ... and this is how you get it back
-  (let [{:keys [inputStream md5Hash contentType source
-                contentEncoding metadata],
-         :as   got}
-        (sut/get-blob sut bucket-name blob-name)]
-    (tu/is-valid ::sut/blob got)
-    (is (= (str "gs://" bucket-name "/" blob-name) source))
-    (is (= exp-contentType contentType))
-    (is (= exp-contentEncoding contentEncoding))
-    (is (= exp-metadata metadata))
-    (is (= exp-content (slurp inputStream)))))
