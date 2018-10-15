@@ -5,6 +5,31 @@
 # GOOGLE_APPLICATION_CREDENTIALS_JSON (base64 encoded)
 version: 2
 jobs:
+  test:
+    docker:
+      - image: circleci/clojure:lein-2.8.1
+    environment:
+      LEIN_ROOT: "true"
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "project.clj" }}
+          - v1-dependencies-
+
+      - run: lein deps
+
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-{{ checksum "project.clj" }}
+
+      - run:
+          name: "run tests"
+          command: |
+            lein test
+
   integration_test:
     docker:
       - image: circleci/clojure:lein-2.8.1
@@ -52,7 +77,10 @@ workflows:
   version: 2
   lib:
     jobs:
-      - integration_test
+      - test
+      - integration_test:
+          requires:
+            - test
       - publish:
           requires:
             - integration_test

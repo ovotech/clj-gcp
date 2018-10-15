@@ -1,4 +1,4 @@
-(defproject ovotech/clj-gcp "0.2.0"
+(defproject ovotech/clj-gcp "0.3.0"
   :description "Clojure utilities for the Google Cloud Platform"
 
   :url "https://github.com/ovotech/clj-gcp"
@@ -9,8 +9,13 @@
 
                  [cheshire "5.8.0"]
                  [com.google.cloud/google-cloud-pubsub "1.40.0"]
+                 [com.google.cloud/google-cloud-storage "1.40.0"]
+                 [digest "1.4.8"]
                  [iapetos "0.1.8"]
                  [integrant "0.6.3"]
+                 [me.raynes/fs "1.4.6"]
+                 [medley "1.0.0"]
+                 [metosin/ring-http-response "0.9.0"]
                  [org.clojure/clojure "1.9.0"]
                  [org.clojure/spec.alpha "0.2.168"]
                  [org.clojure/tools.logging "0.4.1"]

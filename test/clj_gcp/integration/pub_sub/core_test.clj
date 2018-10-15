@@ -9,7 +9,7 @@
             [iapetos.core :as prometheus])
   (:import java.util.UUID))
 
-(def gcp-project-id (System/getenv "GCP_PROJECT_ID"))
+(defn gcp-project-id [] (System/getenv "GCP_PROJECT_ID"))
 
 (defn uuid [] (str (UUID/randomUUID)))
 
@@ -31,9 +31,9 @@
 
 (defn with-subscriber
   [seen-reqs f]
-  (with-random-topic+subscription gcp-project-id
+  (with-random-topic+subscription (gcp-project-id)
     (fn [topic-id sub-id]
-      (let [opts            {:project-id      gcp-project-id
+      (let [opts            {:project-id      (gcp-project-id)
                              :topic-id        topic-id
                              :subscription-id sub-id
                              :handler         (fn [msgs]
@@ -58,8 +58,8 @@
         (testing "getting messages"
           (let [msg1 (json/generate-string {:a "A" :b "B"})
                 msg2 (json/generate-string {:a "A2" :b "B2"})]
-            (mqu/pubsub-publish msg1 {"eventType" "SOME_TYPE"} gcp-project-id topic-id)
-            (mqu/pubsub-publish msg2 {"eventType" "SOME_OTHER_TYPE"} gcp-project-id topic-id)
+            (mqu/pubsub-publish msg1 {"eventType" "SOME_TYPE"} (gcp-project-id) topic-id)
+            (mqu/pubsub-publish msg2 {"eventType" "SOME_OTHER_TYPE"} (gcp-project-id) topic-id)
             (tu/is-eventually (= 2 (count @seen-msgs))
                               :timeout 20000)
             ;; no guarantees on ordering with PubSub (so using a set to check messages arrived)
