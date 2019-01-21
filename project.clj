@@ -1,4 +1,4 @@
-(defproject ovotech/clj-gcp "0.3.0"
+(defproject ovotech/clj-gcp "0.4.0"
   :description "Clojure utilities for the Google Cloud Platform"
 
   :url "https://github.com/ovotech/clj-gcp"

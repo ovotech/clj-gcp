@@ -1,6 +1,6 @@
 (ns clj-gcp.integration.pub-sub.core-test
   (:require [cheshire.core :as json]
-            [clj-gcp.integration.pub-sub.utils :as mqu]
+            [clj-gcp.pub-sub.utils :as mqu]
             [clj-gcp.pub-sub.admin :as sut-admin]
             [clj-gcp.pub-sub.core :as sut]
             [clj-gcp.test-utils :as tu]

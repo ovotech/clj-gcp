@@ -1,4 +1,4 @@
-(ns clj-gcp.integration.pub-sub.utils
+(ns clj-gcp.pub-sub.utils
   (:import com.google.cloud.pubsub.v1.Publisher
            com.google.protobuf.ByteString
            [com.google.pubsub.v1 ProjectTopicName PubsubMessage]))
