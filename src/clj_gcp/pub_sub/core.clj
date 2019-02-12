@@ -1,15 +1,14 @@
 (ns clj-gcp.pub-sub.core
   (:require [cheshire.core :as json]
+            [clj-gcp.common.specs :as cs]
             [clj-gcp.pub-sub.admin :as pub-sub-admin]
             [clojure.spec.alpha :as s]
-            [clojure.string :as string]
             [clojure.tools.logging :as log]
             [iapetos.core :as prometheus]
-            [integrant.core :as ig]
-            [clj-gcp.common.specs :as cs])
+            [integrant.core :as ig])
   (:import com.google.api.gax.rpc.DeadlineExceededException
            [com.google.cloud.pubsub.v1.stub GrpcSubscriberStub SubscriberStub SubscriberStubSettings]
-           [com.google.pubsub.v1 AcknowledgeRequest ProjectSubscriptionName PubsubMessage PullRequest ReceivedMessage]
+           [com.google.pubsub.v1 AcknowledgeRequest ModifyAckDeadlineRequest ProjectSubscriptionName PubsubMessage PullRequest ReceivedMessage]
            java.util.concurrent.TimeUnit))
 
 (s/def ::project-id
@@ -54,6 +53,19 @@
           .acknowledgeCallable
           (.call ack-req)))))
 
+(defn- set-ack-deadline-seconds
+  [^SubscriberStub subscriber ^String subscription-name msgs deadline-seconds]
+  (let [ack-ids (map :pubsub/ack-id msgs)
+        mod-req (-> (ModifyAckDeadlineRequest/newBuilder)
+                    (.setSubscription subscription-name)
+                    (.addAllAckIds ack-ids)
+                    (.setAckDeadlineSeconds (int deadline-seconds))
+                    .build)]
+    (when (not-empty ack-ids)
+      (-> subscriber
+          .modifyAckDeadlineCallable
+          (.call mod-req)))))
+
 (defn- rcv-msg->msg
   [^ReceivedMessage rcv-msg]
   (let [^PubsubMessage msg (.getMessage rcv-msg)
@@ -76,14 +88,21 @@
 (defn- pull&process&ack
   "Pull messages from `subscriber` on `subscription-name`, route them through
   `handler`. Always `ack`."
-  [{:keys [handler metrics-registry pull-max-messages]
-    :or {pull-max-messages 1}
-    :as _opts}
+  [{:keys [handler metrics-registry pull-max-messages ack-deadline-seconds]
+    :or   {pull-max-messages 1}
+    :as   _opts}
    ^SubscriberStub subscriber
    ^String subscription-name]
   (let [rcv-msgs (pull-msgs subscriber subscription-name pull-max-messages)
         _        (prometheus/inc metrics-registry ::message-count {:state :received} (count rcv-msgs))
         msgs     (map rcv-msg->msg rcv-msgs)
+        ;; NOTE try to set the ack deadline as it currently seems to ignore the
+        ;; default set on the subscription
+        _        (when ack-deadline-seconds
+                   (set-ack-deadline-seconds subscriber
+                                             subscription-name
+                                             msgs
+                                             ack-deadline-seconds))
         results  (handler msgs)
         to-ack   (filter ack? results)]
     (prometheus/inc metrics-registry ::message-count {:state :processed} (count results))
