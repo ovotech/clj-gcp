@@ -81,15 +81,16 @@
     :as _opts}
    ^SubscriberStub subscriber
    ^String subscription-name]
-  (let [rcv-msgs (pull-msgs subscriber subscription-name pull-max-messages)
-        _        (prometheus/inc metrics-registry ::message-count {:state :received} (count rcv-msgs))
-        msgs     (map rcv-msg->msg rcv-msgs)
-        results  (handler msgs)
-        to-ack   (filter ack? results)]
-    (prometheus/inc metrics-registry ::message-count {:state :processed} (count results))
+
+  (when-let [rcv-msgs (seq (pull-msgs subscriber subscription-name pull-max-messages))]
+    (prometheus/inc metrics-registry ::message-count {:state :received} (count rcv-msgs))
+    (let [msgs     (map rcv-msg->msg rcv-msgs)
+          results  (handler msgs)
+          to-ack   (filter ack? results)]
+      (prometheus/inc metrics-registry ::message-count {:state :processed} (count results))
     ;; NOTE There is not explicit way to NACK items with the Sync Pull client, therefore we only ACK items
-    (ack-msgs subscriber subscription-name to-ack)
-    (prometheus/inc metrics-registry ::message-count {:state :acked} (count to-ack))))
+      (ack-msgs subscriber subscription-name to-ack)
+      (prometheus/inc metrics-registry ::message-count {:state :acked} (count to-ack)))))
 
 (defn- forever-do
   "Executes `f` forever, presumably for side effects.
