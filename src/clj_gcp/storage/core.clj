@@ -42,6 +42,7 @@
 (defn gcs-exists?
   "Returns a Boolean determining if a file exists in the remote location provided"
   [^Storage gservice bucket-name blob-name]
+  (println "We in exists")
   (.get gservice
         bucket-name
         (str blob-name "danstrst")
