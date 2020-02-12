@@ -17,13 +17,12 @@
 (deftest ^:integration gcs-blob-e2e-test
   (let [sut                 (sut/->gcs-storage-client (gcp-project-id))
         blob-name           (format "TEST_BLOBS/BLOB-%s.txt" (m/random-uuid))
-        file-exists-pre-write? (sut/exists? sut bucket-name blob-name)
         exp-contentEncoding "utf-8"
         exp-content         "mandi!"
         exp-metadata        {"hi" "foo"}
         exp-contentType     "text/plain"]
     (testing "writing blob"
-      (is (= false file-exists-pre-write?))
+      (is (not (sut/exists sut bucket-name blob-name)))
       (with-open [out (Channels/newWriter
                        (sut/blob-writer sut
                                         bucket-name
@@ -33,7 +32,7 @@
                                          :contentEncoding exp-contentEncoding})
                        exp-contentEncoding)]
         (.write out exp-content))
-      (is (= true (sut/exists? sut bucket-name blob-name))))
+      (is (sut/exists? sut bucket-name blob-name)))
 
     (testing "getting blob"
       (let [{:keys [inputStream md5Hash contentType source
