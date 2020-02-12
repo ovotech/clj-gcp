@@ -42,12 +42,10 @@
 (defn gcs-exists?
   "Returns a Boolean determining if a file exists in the remote location provided"
   [^Storage gservice bucket-name blob-name]
-  (when-let [blob  (.get gservice
-                         bucket-name
-                         (str blob-name "danstrst")
-                         (make-array Storage$BlobGetOption 0))]
-    (println blob)
-    #_(.exists blob)))
+  (.get gservice
+        bucket-name
+        (str blob-name "danstrst")
+        (make-array Storage$BlobGetOption 0)))
 
 (defn- gcs-get-blob
   "Will retrieve an object from a remote location, if not present an exception is thrown"
