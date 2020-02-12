@@ -32,7 +32,7 @@
                                          :contentEncoding exp-contentEncoding})
                        exp-contentEncoding)]
         (.write out exp-content))
-      (is (sut/exists? sut bucket-name blob-name)))
+      (is (sut/exists sut bucket-name blob-name)))
 
     (testing "getting blob"
       (let [{:keys [inputStream md5Hash contentType source

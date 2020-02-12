@@ -13,7 +13,7 @@
 
 (defprotocol StorageClient
   (get-blob [this bucket-name blob-name])
-  (exists? [this bucket-name blob-name])
+  (exists [this bucket-name blob-name])
   (blob-writer [this bucket-name blob-name opts]))
 
 ;;,------
@@ -40,7 +40,7 @@
 ;;| GCSStorageClient
 ;;`---------------
 (defn gcs-exists?
-  "Returns a Boolean determining if a file exists in the remote location provided"
+  "Returns a Truthy determining if a file exists in the remote location provided"
   [^Storage gservice bucket-name blob-name]
   (.get gservice
         bucket-name
@@ -89,8 +89,8 @@
   StorageClient
   (get-blob [this bucket-name blob-name]
     (gcs-get-blob gservice bucket-name blob-name))
-  (exists? [this bucket-name blob-name]
-    (gcs-exists? gservice bucket-name blob-name))
+  (exists [this bucket-name blob-name]
+    (gcs-exists gservice bucket-name blob-name))
   (blob-writer [this bucket-name blob-name opts]
     (gcs-blob-writer gservice bucket-name blob-name opts)))
 (alter-meta! #'->GCSStorageClient assoc :private true)
@@ -186,7 +186,7 @@
 (defrecord FileSystemStorageClient [base-path]
   StorageClient
   (get-blob [_ bucket blob-name] (fs-get-blob base-path bucket blob-name))
-  (exists? [_ bucket blob-name] (fs-exists? base-path bucket blob-name))
+  (exists [_ bucket blob-name] (fs-exists? base-path bucket blob-name))
   (blob-writer [_ bucket blob-name opts]
     (fs-blob-writer base-path bucket blob-name opts)))
 (alter-meta! #'->FileSystemStorageClient assoc :private true)
