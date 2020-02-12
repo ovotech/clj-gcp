@@ -44,7 +44,7 @@
   [^Storage gservice bucket-name blob-name]
   (.get gservice
         bucket-name
-        (str blob-name "danstrst")
+        blob-name
         (make-array Storage$BlobGetOption 0)))
 
 (defn- gcs-get-blob
