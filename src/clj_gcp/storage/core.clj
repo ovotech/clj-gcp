@@ -39,7 +39,7 @@
 ;;,---------------
 ;;| GCSStorageClient
 ;;`---------------
-(defn gcs-exists?
+(defn gcs-exists
   "Returns a Truthy determining if a file exists in the remote location provided"
   [^Storage gservice bucket-name blob-name]
   (.get gservice
@@ -152,7 +152,7 @@
                  java.io.PushbackReader.
                  edn/read)))))
 
-(defn fs-exists?
+(defn fs-exists
   [base-path bucket-name blob-name]
   (fs/exists? (fs-blob-file base-path bucket-name blob-name)))
 
@@ -186,7 +186,7 @@
 (defrecord FileSystemStorageClient [base-path]
   StorageClient
   (get-blob [_ bucket blob-name] (fs-get-blob base-path bucket blob-name))
-  (exists [_ bucket blob-name] (fs-exists? base-path bucket blob-name))
+  (exists [_ bucket blob-name] (fs-exists base-path bucket blob-name))
   (blob-writer [_ bucket blob-name opts]
     (fs-blob-writer base-path bucket blob-name opts)))
 (alter-meta! #'->FileSystemStorageClient assoc :private true)
