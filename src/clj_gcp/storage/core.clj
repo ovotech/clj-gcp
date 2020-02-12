@@ -46,7 +46,8 @@
                          bucket-name
                          blob-name
                          (make-array Storage$BlobGetOption 0))]
-    (.exists blob)))
+    (println blob)
+    #_(.exists blob)))
 
 (defn- gcs-get-blob
   "Will retrieve an object from a remote location, if not present an exception is thrown"
