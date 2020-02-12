@@ -44,7 +44,7 @@
   [^Storage gservice bucket-name blob-name]
   (when-let [blob  (.get gservice
                          bucket-name
-                         blob-name
+                         (str blob-name "danstrst")
                          (make-array Storage$BlobGetOption 0))]
     (println blob)
     #_(.exists blob)))
