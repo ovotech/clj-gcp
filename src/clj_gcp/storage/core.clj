@@ -39,7 +39,7 @@
 ;;,---------------
 ;;| GCSStorageClient
 ;;`---------------
-(defn gcs-exists
+(defn- gcs-get-blob
   "Returns a Truthy determining if a file exists in the remote location provided"
   [^Storage gservice bucket-name blob-name]
   (.get gservice
@@ -47,13 +47,10 @@
         blob-name
         (make-array Storage$BlobGetOption 0)))
 
-(defn- gcs-get-blob
-  "Will retrieve an object from a remote location, if not present an exception is thrown"
+(defn- gcs-get-object
+  "Will retrieve an object from a remote location and downloads the blob. if not present an exception is thrown"
   [^Storage gservice bucket-name blob-name]
-  (if-let [blob (.get gservice
-                      bucket-name
-                      blob-name
-                      (make-array Storage$BlobGetOption 0))]
+  (if-let [blob (gcs-get-blob ^Storage gservice bucket-name blob-name)]
     (let [inputStream (-> blob
                           (.reader (make-array Blob$BlobSourceOption 0))
                           Channels/newInputStream)]
@@ -88,9 +85,9 @@
 (defrecord GCSStorageClient [^Storage gservice]
   StorageClient
   (get-blob [this bucket-name blob-name]
-    (gcs-get-blob gservice bucket-name blob-name))
+    (gcs-get-object gservice bucket-name blob-name))
   (exists [this bucket-name blob-name]
-    (gcs-exists gservice bucket-name blob-name))
+    (gcs-get-blob gservice bucket-name blob-name))
   (blob-writer [this bucket-name blob-name opts]
     (gcs-blob-writer gservice bucket-name blob-name opts)))
 (alter-meta! #'->GCSStorageClient assoc :private true)
