@@ -6,7 +6,7 @@
             [medley.core :as m])
   (:import java.nio.channels.Channels))
 
-(def ^:private bucket-name "test-blobs")
+(def ^:private bucket-name "flow-platform-test-blobs")
 (def ^:private gcp-project-id (System/getenv "GCP_PROJECT_ID"))
 
 (deftest ^:integration healthcheck
