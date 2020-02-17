@@ -13,6 +13,7 @@
 
 (defprotocol StorageClient
   (get-blob [this bucket-name blob-name])
+  (exists? [this bucket-name blob-name])
   (blob-writer [this bucket-name blob-name opts]))
 
 ;;,------
@@ -39,11 +40,17 @@
 ;;| GCSStorageClient
 ;;`---------------
 (defn- gcs-get-blob
+  "Returns the metadata blob from the GCS target location. Returns nil if not present"
   [^Storage gservice bucket-name blob-name]
-  (if-let [blob (.get gservice
-                      bucket-name
-                      blob-name
-                      (make-array Storage$BlobGetOption 0))]
+  (.get gservice
+        bucket-name
+        blob-name
+        (make-array Storage$BlobGetOption 0)))
+
+(defn- gcs-get-object
+  "Will retrieve an object from a remote location and downloads the blob. if not present an exception is thrown"
+  [^Storage gservice bucket-name blob-name]
+  (if-let [blob (gcs-get-blob ^Storage gservice bucket-name blob-name)]
     (let [inputStream (-> blob
                           (.reader (make-array Blob$BlobSourceOption 0))
                           Channels/newInputStream)]
@@ -59,6 +66,7 @@
            (s/assert ::blob)))
     (throw (ex-info "no such blob"
                     {:blob-name blob-name, :bucket-name bucket-name}))))
+
 (defn- gcs-blob-writer
   ([gservice bucket-name blob-name]
    (gcs-blob-writer gservice bucket-name blob-name nil))
@@ -77,6 +85,8 @@
 (defrecord GCSStorageClient [^Storage gservice]
   StorageClient
   (get-blob [this bucket-name blob-name]
+    (gcs-get-object gservice bucket-name blob-name))
+  (exists? [this bucket-name blob-name]
     (gcs-get-blob gservice bucket-name blob-name))
   (blob-writer [this bucket-name blob-name opts]
     (gcs-blob-writer gservice bucket-name blob-name opts)))
@@ -116,6 +126,11 @@
 ;;`------------------------
 
 (defn- mkdirs [file] (fs/mkdirs (.getParent file)))
+
+(defn- fs-blob-file
+  [base-path bucket-name blob-name]
+  (io/file base-path bucket-name blob-name))
+
 (defn- fs-blob-info-file
   [base-path bucket-name blob-name]
   (let [;; HACK to support blob-names like "foo/bar/baz.txt"
@@ -124,6 +139,7 @@
                                 (str "/"))
                         (format ".%s.info.edn" (.getName blob-namef)))]
     (fs/normalized (io/file base-path bucket-name infof-name))))
+
 (defn- fs-blob-info
   [base-path bucket-name blob-name]
   (merge {:contentType "application/octet-stream"}
@@ -133,10 +149,12 @@
                  io/reader
                  java.io.PushbackReader.
                  edn/read)))))
-(defn- fs-blob-file
+
+(defn- fs-exists
   [base-path bucket-name blob-name]
-  (io/file base-path bucket-name blob-name))
-(defn fs-get-blob
+  (fs/exists? (fs-blob-file base-path bucket-name blob-name)))
+
+(defn- fs-get-blob
   [base-path bucket-name blob-name]
   (let [blobf (fs-blob-file base-path bucket-name blob-name)]
     (if (fs/exists? blobf)
@@ -150,7 +168,8 @@
                        :bucket-name bucket-name,
                        :base-path base-path,
                        :blob-file blobf})))))
-(defn fs-blob-writer
+
+(defn- fs-blob-writer
   ([base-path bucket-name blob-name]
    (fs-blob-writer base-path bucket-name blob-name nil))
   ([base-path bucket-name blob-name opts]
@@ -166,6 +185,7 @@
 (defrecord FileSystemStorageClient [base-path]
   StorageClient
   (get-blob [_ bucket blob-name] (fs-get-blob base-path bucket blob-name))
+  (exists? [_ bucket blob-name] (fs-exists base-path bucket blob-name))
   (blob-writer [_ bucket blob-name opts]
     (fs-blob-writer base-path bucket blob-name opts)))
 (alter-meta! #'->FileSystemStorageClient assoc :private true)
