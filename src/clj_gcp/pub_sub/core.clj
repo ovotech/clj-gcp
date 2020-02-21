@@ -70,7 +70,7 @@
      )))
 
 (defn- rcv-msg->msg
-  [^ReceivedMessage rcv-msg & opts]
+  [^ReceivedMessage rcv-msg opts]
   (let [^PubsubMessage msg (.getMessage rcv-msg)
         parse (parse-msg opts)
         payload (-> msg
