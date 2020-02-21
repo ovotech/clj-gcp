@@ -20,12 +20,15 @@
   pos-int?)
 (s/def ::handler
   fn?)
+(s/def ::json?
+  boolean?)
 (s/def ::subscriber.opts
   (s/keys :req-un [::handler
                    ::project-id
                    ::subscription-id
                    ::metrics-registry]
-          :opt-un [::pull-max-messages]))
+          :opt-un [::pull-max-messages
+                   ::json?]))
 (s/def ::subscriber.healthcheck.opts
   (s/keys :req-un [::project-id
                    ::subscription-id]))
@@ -54,13 +57,26 @@
           .acknowledgeCallable
           (.call ack-req)))))
 
+(defn- parse-msg
+  "Perhaps this should be middleware like functionality and the JSON
+  parsing passed in as part of this and removed from this file
+  entirely.  We could then include for example schema checking etc."
+  ([]
+   (parse-msg {:json? true}))
+  ([{:keys [json?]}]
+   (if json?
+     (fn [s] (json/parse-string s true))
+     (fn [s] {:payload s}) ;; if it's not a JSON message we wrap in a simple map
+     )))
+
 (defn- rcv-msg->msg
-  [^ReceivedMessage rcv-msg]
+  [^ReceivedMessage rcv-msg & opts]
   (let [^PubsubMessage msg (.getMessage rcv-msg)
+        parse (parse-msg opts)
         payload (-> msg
                     .getData
                     .toStringUtf8
-                    (json/parse-string true))
+                    parse)
         ; clojure.walk/keywordize-keys doesn't work with Java Maps!
         attributes (into {} (for [[k v] (.getAttributesMap msg)] [(keyword k) v]))]
     (assoc payload :pubsub/attributes attributes
@@ -76,7 +92,7 @@
 (defn- pull&process&ack
   "Pull messages from `subscriber` on `subscription-name`, route them through
   `handler`. Always `ack`."
-  [{:keys [handler metrics-registry pull-max-messages]
+  [{:keys [handler metrics-registry pull-max-messages json?]
     :or {pull-max-messages 1}
     :as _opts}
    ^SubscriberStub subscriber
@@ -84,7 +100,7 @@
 
   (when-let [rcv-msgs (seq (pull-msgs subscriber subscription-name pull-max-messages))]
     (prometheus/inc metrics-registry ::message-count {:state :received} (count rcv-msgs))
-    (let [msgs     (map rcv-msg->msg rcv-msgs)
+    (let [msgs     (map #(rcv-msg->msg % _opts) rcv-msgs)
           results  (handler msgs)
           to-ack   (filter ack? results)]
       (prometheus/inc metrics-registry ::message-count {:state :processed} (count results))

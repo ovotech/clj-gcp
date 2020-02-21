@@ -1,4 +1,4 @@
-(defproject ovotech/clj-gcp "0.4.1"
+(defproject ovotech/clj-gcp "0.4.2-SNAPSHOT"
   :description "Clojure utilities for the Google Cloud Platform"
 
   :url "https://github.com/ovotech/clj-gcp"
@@ -20,7 +20,6 @@
                  [org.clojure/spec.alpha "0.2.168"]
                  [org.clojure/tools.logging "0.4.1"]
 
-                 ;;;
                  ]
 
   :test-selectors {:default     (complement :integration)
