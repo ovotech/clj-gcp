@@ -93,8 +93,8 @@ Can also be used as an Integrant component:
 
 ```
 ;; ig-config.edn
-:common.clients.storage/client             nil
-:common.clients.storage/client.healthcheck nil
+:clj-gcp.storage/client             nil
+:clj-gcp.storage/client.healthcheck nil
 ```
 
 #### Testing implementation

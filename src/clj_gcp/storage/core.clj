@@ -83,7 +83,7 @@
      nio-writer)))
 
 (defrecord GCSStorageClient [^Storage gservice]
-  StorageClient
+  clj-gcp.storage.core/StorageClient
   (get-blob [this bucket-name blob-name]
     (gcs-get-object gservice bucket-name blob-name))
   (exists? [this bucket-name blob-name]
@@ -114,10 +114,10 @@
        .getService
        ->GCSStorageClient)))
 
-(defmethod ig/init-key :common.clients.storage/client
+(defmethod ig/init-key :clj-gcp.storage/client
   [_ _]
   (->gcs-storage-client))
-(defmethod ig/init-key :common.clients.storage/client.healthcheck
+(defmethod ig/init-key :clj-gcp.storage/client.healthcheck
   [_ _]
   gcs-healthcheck)
 
