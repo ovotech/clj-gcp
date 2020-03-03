@@ -23,12 +23,7 @@
 (s/def ::md5Hash ::cs/non-blank-string) ; TODO more restrictive
 (s/def ::inputStream #(instance? java.io.InputStream %))
 (s/def ::createdAt integer?)
-(s/def ::contentType
-  #{"text/plain"
-    "application/json"
-    "application/octet-stream"
-    "binary/octet-stream"
-    "avro/binary"})
+(s/def ::contentType string?)
 (s/def ::contentEncoding #{"utf-8"})
 (s/def :blob/metadata (s/map-of string? string?))
 (s/def ::source ::cs/non-blank-string)
