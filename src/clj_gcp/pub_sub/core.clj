@@ -115,6 +115,9 @@
                                    (catch DeadlineExceededException ex
                                      (log/info ex
                                                "Caught DeadlineExceededException in PubSub subscriber loop. Will continue."))
+                                   (catch com.google.api.gax.rpc.UnavailableException ex
+                                     (log/info ex
+                                               (str "Caught UnavailableException in PubSub subscriber loop. Will continue. subscriber: " subscriber "  subscription-name " subscription-name )))
                                    (catch Exception ex
                                      (log/error ex
                                                 "Caught exception in PubSub subscriber loop. Will ignore and continue unfazed."))))
