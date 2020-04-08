@@ -85,7 +85,6 @@
     (gcs-get-blob gservice bucket-name blob-name))
   (blob-writer [this bucket-name blob-name opts]
     (gcs-blob-writer gservice bucket-name blob-name opts)))
-(alter-meta! #'->GCSStorageClient assoc :private true)
 
 (defn gcs-healthcheck
   []
@@ -183,7 +182,6 @@
   (exists? [_ bucket blob-name] (fs-exists base-path bucket blob-name))
   (blob-writer [_ bucket blob-name opts]
     (fs-blob-writer base-path bucket blob-name opts)))
-(alter-meta! #'->FileSystemStorageClient assoc :private true)
 
 (defn ->file-system-storage-client
   [base-path]
