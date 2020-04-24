@@ -5,7 +5,7 @@ Clojure utilities for the Google Cloud Platform.
 
 
 [![Clojars Project](https://img.shields.io/clojars/v/ovotech/clj-gcp.svg)](https://clojars.org/ovotech/clj-gcp)
-[![Code Coverage](https://codecov.io/gh/ovotech/clj-gcp/branch/codecov/graph/badge.svg)](https://codecov.io/gh/ovotech/clj-gcp)
+[![Code Coverage](https://codecov.io/gh/ovotech/clj-gcp/branch/master/graph/badge.svg)](https://codecov.io/gh/ovotech/clj-gcp)
 ## Usage
 
 ### Pub-Sub
