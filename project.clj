@@ -19,6 +19,7 @@
                  [org.clojure/clojure "1.9.0"]
                  [org.clojure/spec.alpha "0.2.168"]
                  [org.clojure/tools.logging "0.4.1"]
+                 [lambdaisland/kaocha-cloverage "1.0-45"]
 
                  ;;;
                  ]
@@ -31,4 +32,7 @@
                    [["clojars" {:url           "https://clojars.org/repo"
                                 :username      :env ;; LEIN_USERNAME
                                 :password      :env ;; LEIN_PASSWORD
-                                :sign-releases false}]]}})
+                                :sign-releases false}]]}
+             :kaocha              {:dependencies [[lambdaisland/kaocha "1.0-612"]]}}
+
+  :aliases {"kaocha" ["with-profile" "+kaocha" "run" "-m" "kaocha.runner"]})

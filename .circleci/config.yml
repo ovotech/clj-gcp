@@ -3,7 +3,9 @@
 # LEIN_PASSWORD
 # GCP_PROJECT_ID
 # GOOGLE_APPLICATION_CREDENTIALS_JSON (base64 encoded)
-version: 2
+version: 2.1
+orbs:
+  codecov: codecov/codecov@1.0.5
 jobs:
   test:
     docker:
@@ -26,9 +28,12 @@ jobs:
           key: v1-dependencies-{{ checksum "project.clj" }}
 
       - run:
-          name: "run tests"
+          name: "run unit tests"
           command: |
-            lein test
+            lein kaocha unit --plugin cloverage --codecov
+
+      - codecov/upload:
+          file: target/coverage/codecov.json
 
   integration_test:
     docker:
@@ -55,7 +60,10 @@ jobs:
           command: |
             echo $GOOGLE_APPLICATION_CREDENTIALS_JSON  | base64 --decode > GCP_KEY.json
             export GOOGLE_APPLICATION_CREDENTIALS=GCP_KEY.json
-            lein test :integration
+            lein kaocha integration --plugin cloverage --codecov
+
+      - codecov/upload:
+          file: target/coverage/codecov.json
 
   publish:
     docker:

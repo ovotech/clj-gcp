@@ -1,12 +1,12 @@
 # clj-gcp [![CircleCI](https://circleci.com/gh/ovotech/clj-gcp/tree/master.svg?style=svg)](https://circleci.com/gh/ovotech/clj-gcp/tree/master)
 
+
 Clojure utilities for the Google Cloud Platform.
 
 
-## Usage
-
 [![Clojars Project](https://img.shields.io/clojars/v/ovotech/clj-gcp.svg)](https://clojars.org/ovotech/clj-gcp)
-
+[![Code Coverage](https://codecov.io/gh/ovotech/clj-gcp/branch/codecov/graph/badge.svg)](https://codecov.io/gh/ovotech/clj-gcp)
+## Usage
 
 ### Pub-Sub
 Mainly used through integrant:
