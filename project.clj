@@ -26,7 +26,8 @@
   :test-selectors {:default     (complement :integration)
                    :integration :integration}
 
-  :profiles {:dev {:dependencies [[expound "0.7.1"]]}
+  :profiles {:dev {:dependencies [[expound "0.7.1"]]
+                   :plugins [[lein-ancient "0.6.15"]]}
              :ci  {:deploy-repositories
                    [["clojars" {:url           "https://clojars.org/repo"
                                 :username      :env ;; LEIN_USERNAME
