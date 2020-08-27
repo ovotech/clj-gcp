@@ -7,18 +7,18 @@
 
   :dependencies [;;;
 
-                 [cheshire "5.8.0"]
-                 [com.google.cloud/google-cloud-pubsub "1.40.0"]
-                 [com.google.cloud/google-cloud-storage "1.40.0"]
-                 [digest "1.4.8"]
+                 [cheshire "5.10.0"]
+                 [com.google.cloud/google-cloud-pubsub "1.108.1"]
+                 [com.google.cloud/google-cloud-storage "1.111.2"]
+                 [digest "1.4.9"]
                  [iapetos "0.1.8"]
-                 [integrant "0.6.3"]
+                 [integrant "0.8.0"]
                  [me.raynes/fs "1.4.6"]
-                 [medley "1.0.0"]
-                 [metosin/ring-http-response "0.9.0"]
-                 [org.clojure/clojure "1.9.0"]
-                 [org.clojure/spec.alpha "0.2.168"]
-                 [org.clojure/tools.logging "0.4.1"]
+                 [medley "1.3.0"]
+                 [metosin/ring-http-response "0.9.1"]
+                 [org.clojure/clojure "1.10.1"]
+                 [org.clojure/spec.alpha "0.2.187"]
+                 [org.clojure/tools.logging "1.1.0"]
 
                  ;;;
                  ]
