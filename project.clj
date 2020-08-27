@@ -9,7 +9,7 @@
 
                  [cheshire "5.10.0"]
                  [com.google.cloud/google-cloud-pubsub "1.108.1"]
-                 [com.google.oauth-client/google-oauth-client "1.30.5"]
+                 [com.google.oauth-client/google-oauth-client "1.31.0"]
                  [com.google.cloud/google-cloud-storage "1.111.2"
                   :exclusions [com.google.oauth-client/google-oauth-client]]
                  [digest "1.4.9"]
