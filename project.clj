@@ -14,13 +14,13 @@
                   :exclusions [com.google.oauth-client/google-oauth-client]]
                  [digest "1.4.9"]
                  [iapetos "0.1.8"]
-                 [integrant "0.6.3"]
+                 [integrant "0.8.0"]
                  [me.raynes/fs "1.4.6"]
-                 [medley "1.0.0"]
-                 [metosin/ring-http-response "0.9.0"]
-                 [org.clojure/clojure "1.9.0"]
-                 [org.clojure/spec.alpha "0.2.168"]
-                 [org.clojure/tools.logging "0.4.1"]
+                 [medley "1.3.0"]
+                 [metosin/ring-http-response "0.9.1"]
+                 [org.clojure/clojure "1.10.1"]
+                 [org.clojure/spec.alpha "0.2.187"]
+                 [org.clojure/tools.logging "1.1.0"]
 
                  ;;;
                  ]
@@ -28,7 +28,8 @@
   :test-selectors {:default     (complement :integration)
                    :integration :integration}
 
-  :profiles {:dev {:dependencies [[expound "0.7.1"]]}
+  :profiles {:dev {:dependencies [[expound "0.8.5"]]
+                   :plugins [[lein-ancient "0.6.15"]]}
              :ci  {:deploy-repositories
                    [["clojars" {:url           "https://clojars.org/repo"
                                 :username      :env ;; LEIN_USERNAME
