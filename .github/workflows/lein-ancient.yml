@@ -1,0 +1,51 @@
+name: Update Dependencies
+on:
+  schedule:
+    - cron: '0 0 * * 0'
+jobs:
+  upgrade:
+    name: Upgrade Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 12
+          java-package: jdk
+          architecture: x64
+      - uses: DeLaGuardo/setup-clojure@2.0
+        with:
+          lein: 2.9.1
+
+      - name: Find Outdated Deps
+        env:
+          BINTRAY_API_KEY: ${{ secrets.BINTRAY_API_KEY }}
+          BINTRAY_USERNAME: ${{ secrets.BINTRAY_USERNAME }}
+        run: |
+          lein ancient upgrade :all :check-clojure :no-tests :exclude manual
+
+          if [[ ! `git status --porcelain` ]]; then
+              echo '::set-env name=DEPS_CHANGED::false'
+              exit 0
+          else
+              echo '::set-env name=DEPS_CHANGED::true'
+          fi
+
+      - name: Create Pull Request
+        id: pr
+        if: env.DEPS_CHANGED == 'true'
+        uses: peter-evans/create-pull-request@v2
+        with:
+          title: "deps: upgrade to newer versions"
+          base: master
+          branch: upgrade-deps
+          commit-message: |
+            deps: upgrade to newer versions
+          body: |
+            :robot: BEEP BOOP - just upgrading some deps :robot:
+      - name: Print PR outputs
+        if: env.DEPS_CHANGED == 'true'
+        run: |
+          echo "Pull Request Number - ${{ env.PULL_REQUEST_NUMBER }}"
+          echo "Pull Request Number - ${{ steps.pr.outputs.pull-request-number }}"
