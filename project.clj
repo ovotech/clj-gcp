@@ -11,7 +11,7 @@
                  [clj-commons/fs "1.5.2"]
                  [com.google.cloud/google-cloud-pubsub "1.108.1"]
                  [com.google.oauth-client/google-oauth-client "1.31.0"]
-                 [com.google.cloud/google-cloud-storage "1.111.2"
+                 [com.google.cloud/google-cloud-storage "1.113.0"
                   :exclusions [com.google.oauth-client/google-oauth-client]]
                  [digest "1.4.9"]
                  [iapetos "0.1.8"]
