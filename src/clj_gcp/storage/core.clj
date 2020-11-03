@@ -171,7 +171,7 @@
   (let [blobf (fs-blob-file base-path bucket-name blob-name)]
     (if (fs/exists? blobf)
       (merge {:inputStream (io/input-stream blobf),
-              :md5Hash (digest/md5 (str blobf)), ;; HACK
+              :md5Hash (digest/md5 (slurp blobf)),
               :createdAt (.lastModified blobf),
               :source (str (fs/normalized blobf))}
              (fs-blob-info base-path bucket-name blob-name))
