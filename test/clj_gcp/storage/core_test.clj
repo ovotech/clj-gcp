@@ -22,6 +22,35 @@
              (is (thrown? clojure.lang.ExceptionInfo
                           (sut/get-blob sut "." "I_DO_NOT_EXIST.md"))))))
 
+(deftest fs-copy-blob-test
+  (let [sut (sut/->file-system-storage-client ".")]
+    (testing "getting a blob"
+      (let [from-blob (sut/get-blob sut "." "README.md")
+            _ (sut/copy-blob sut ["." "README.md"] ["." "README.md.new"] {})
+            to-blob (sut/get-blob sut "." "README.md.new")]
+        (tu/is-valid ::sut/blob from-blob)
+        (is (= (.getAbsolutePath (io/file "README.md")) (:source from-blob)))
+        (is (= (.getAbsolutePath (io/file "README.md.new")) (:source to-blob)))
+        (is (= (:md5Hash from-blob) (:md5Hash to-blob)))
+        (is (= (:contentEncoding from-blob) (:contentEncoding to-blob)))
+        (io/delete-file "README.md.new")))))
+
+(deftest fs-move-blob-test
+  (let [sut (sut/->file-system-storage-client ".")]
+    (testing "getting a blob"
+      (let [from-blob (sut/get-blob sut "." "README.md")
+            _ (sut/copy-blob sut ["." "README.md"] ["." "README.md.cp"] {})
+            _ (sut/move-blob sut ["." "README.md.cp"] ["." "README.md.mv"] {})
+            to-blob (sut/get-blob sut "." "README.md.mv")]
+        (tu/is-valid ::sut/blob from-blob)
+        (is (= (.getAbsolutePath (io/file "README.md")) (:source from-blob)))
+        (is (= (.getAbsolutePath (io/file "README.md.mv")) (:source to-blob)))
+        (is (= (:md5Hash from-blob) (:md5Hash to-blob)))
+        (is (= (:contentEncoding from-blob) (:contentEncoding to-blob)))
+        (is (thrown? clojure.lang.ExceptionInfo
+                     (sut/get-blob sut "." "README.md.cp")))
+        (io/delete-file "README.md.mv")))))
+
 (deftest fs-blob-writer-test
   (let [base-path (fs/normalized "/tmp/test-blobs")
         bucket    "foo-bucket"
