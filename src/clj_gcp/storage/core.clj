@@ -14,7 +14,9 @@
 (defprotocol StorageClient
   (get-blob [this bucket-name blob-name])
   (exists? [this bucket-name blob-name])
-  (blob-writer [this bucket-name blob-name opts]))
+  (blob-writer [this bucket-name blob-name opts])
+  (copy-blob [this from to opts])
+  (move-blob [this from to opts]))
 
 ;;,------
 ;;| Blobs
@@ -77,6 +79,17 @@
          (.writer gservice blob-info (make-array Storage$BlobWriteOption 0))]
      nio-writer)))
 
+(defn- gcs-copy-blob
+  [gservice [from-bucket-name from-blob-name] [to-bucket-name to-blob-name] opts]
+  (let [from-blob (gcs-get-blob gservice from-bucket-name from-blob-name)]
+    (.copyTo from-blob to-bucket-name to-blob-name)))
+
+(defn- gcs-move-blob
+  [gservice [from-bucket-name from-blob-name] [to-bucket-name to-blob-name] opts]
+  (let [from-blob (gcs-get-blob gservice from-bucket-name from-blob-name)]
+    (.copyTo from-blob to-bucket-name to-blob-name)
+    (.delete from-blob)))
+
 (defrecord GCSStorageClient [^Storage gservice]
   clj-gcp.storage.core/StorageClient
   (get-blob [this bucket-name blob-name]
@@ -84,7 +97,11 @@
   (exists? [this bucket-name blob-name]
     (gcs-get-blob gservice bucket-name blob-name))
   (blob-writer [this bucket-name blob-name opts]
-    (gcs-blob-writer gservice bucket-name blob-name opts)))
+    (gcs-blob-writer gservice bucket-name blob-name opts))
+  (copy-blob [this from to opts]
+    (gcs-copy-blob this from to opts))
+  (move-blob [this from to opts]
+    (gcs-move-blob this from to opts)))
 (alter-meta! #'->GCSStorageClient assoc :private true)
 
 (defn gcs-healthcheck
@@ -177,12 +194,28 @@
           io/output-stream
           Channels/newChannel))))
 
+(defn- bucket+path->file
+  [base-path [bucket path]]
+  (fs-blob-file base-path bucket path))
+
+(defn- fs-copy-blob
+  [base-path from to opts]
+  (fs/copy (bucket+path->file base-path from) (bucket+path->file base-path to)))
+
+(defn- fs-move-blob
+  [base-path from to opts]
+  (fs/rename (bucket+path->file base-path from) (bucket+path->file base-path to)))
+
 (defrecord FileSystemStorageClient [base-path]
   StorageClient
   (get-blob [_ bucket blob-name] (fs-get-blob base-path bucket blob-name))
   (exists? [_ bucket blob-name] (fs-exists base-path bucket blob-name))
   (blob-writer [_ bucket blob-name opts]
-    (fs-blob-writer base-path bucket blob-name opts)))
+    (fs-blob-writer base-path bucket blob-name opts))
+  (copy-blob [_ from to opts]
+    (fs-copy-blob base-path from to opts))
+  (move-blob [_ from to opts]
+    (fs-move-blob base-path from to opts)))
 (alter-meta! #'->FileSystemStorageClient assoc :private true)
 
 (defn ->file-system-storage-client
