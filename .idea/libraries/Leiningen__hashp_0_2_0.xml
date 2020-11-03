@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Leiningen: hashp:0.2.0">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/hashp/hashp/0.2.0/hashp-0.2.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

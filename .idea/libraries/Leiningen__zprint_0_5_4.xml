@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Leiningen: zprint:0.5.4">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/zprint/zprint/0.5.4/zprint-0.5.4.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

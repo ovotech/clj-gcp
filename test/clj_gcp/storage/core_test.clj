@@ -26,7 +26,7 @@
   (let [sut (sut/->file-system-storage-client ".")]
     (testing "getting a blob"
       (let [from-blob (sut/get-blob sut "." "README.md")
-            _ (sut/copy-blob sut ["." "README.md"] ["." "README.md.new"] {})
+            _ (sut/copy-blob sut ["." "README.md"] ["." "README.md.new"])
             to-blob (sut/get-blob sut "." "README.md.new")]
         (tu/is-valid ::sut/blob from-blob)
         (is (= (.getAbsolutePath (io/file "README.md")) (:source from-blob)))
@@ -39,8 +39,8 @@
   (let [sut (sut/->file-system-storage-client ".")]
     (testing "getting a blob"
       (let [from-blob (sut/get-blob sut "." "README.md")
-            _ (sut/copy-blob sut ["." "README.md"] ["." "README.md.cp"] {})
-            _ (sut/move-blob sut ["." "README.md.cp"] ["." "README.md.mv"] {})
+            _ (sut/copy-blob sut ["." "README.md"] ["." "README.md.cp"])
+            _ (sut/move-blob sut ["." "README.md.cp"] ["." "README.md.mv"])
             to-blob (sut/get-blob sut "." "README.md.mv")]
         (tu/is-valid ::sut/blob from-blob)
         (is (= (.getAbsolutePath (io/file "README.md")) (:source from-blob)))

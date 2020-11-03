@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Leiningen: com.google.api-client/google-api-client:1.30.10">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/google/api-client/google-api-client/1.30.10/google-api-client-1.30.10.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
