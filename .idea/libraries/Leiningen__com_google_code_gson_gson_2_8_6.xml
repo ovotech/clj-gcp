@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="Leiningen: com.google.code.gson/gson:2.8.6">
-    <CLASSES>
-      <root url="jar://$MAVEN_REPOSITORY$/com/google/code/gson/gson/2.8.6/gson-2.8.6.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

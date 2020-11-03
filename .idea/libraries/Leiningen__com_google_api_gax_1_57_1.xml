@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="Leiningen: com.google.api/gax:1.57.1">
-    <CLASSES>
-      <root url="jar://$MAVEN_REPOSITORY$/com/google/api/gax/1.57.1/gax-1.57.1.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

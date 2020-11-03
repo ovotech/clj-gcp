@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="Leiningen: com.google.apis/google-api-services-storage:v1-rev20200814-1.30.10">
-    <CLASSES>
-      <root url="jar://$MAVEN_REPOSITORY$/com/google/apis/google-api-services-storage/v1-rev20200814-1.30.10/google-api-services-storage-v1-rev20200814-1.30.10.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
