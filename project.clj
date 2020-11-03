@@ -20,10 +20,10 @@
                  [metosin/ring-http-response "0.9.1"]
                  [org.clojure/clojure "1.10.1"]
                  [org.clojure/spec.alpha "0.2.187"]
-                 [org.clojure/tools.logging "1.1.0"]
+                 [org.clojure/tools.logging "1.1.0"]]
 
                  ;;;
-                 ]
+
 
   :test-selectors {:default     (complement :integration)
                    :integration :integration}

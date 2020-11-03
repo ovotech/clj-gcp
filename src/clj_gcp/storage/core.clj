@@ -15,8 +15,8 @@
   (get-blob [this bucket-name blob-name])
   (exists? [this bucket-name blob-name])
   (blob-writer [this bucket-name blob-name opts])
-  (copy-blob [this from to opts])
-  (move-blob [this from to opts]))
+  (copy-blob [this from to])
+  (move-blob [this from to]))
 
 ;;,------
 ;;| Blobs
@@ -80,12 +80,12 @@
      nio-writer)))
 
 (defn- gcs-copy-blob
-  [gservice [from-bucket-name from-blob-name] [to-bucket-name to-blob-name] opts]
+  [gservice [from-bucket-name from-blob-name] [to-bucket-name to-blob-name]]
   (let [from-blob (gcs-get-blob gservice from-bucket-name from-blob-name)]
     (.copyTo from-blob to-bucket-name to-blob-name)))
 
 (defn- gcs-move-blob
-  [gservice [from-bucket-name from-blob-name] [to-bucket-name to-blob-name] opts]
+  [gservice [from-bucket-name from-blob-name] [to-bucket-name to-blob-name]]
   (let [from-blob (gcs-get-blob gservice from-bucket-name from-blob-name)]
     (.copyTo from-blob to-bucket-name to-blob-name)
     (.delete from-blob)))
@@ -98,10 +98,10 @@
     (gcs-get-blob gservice bucket-name blob-name))
   (blob-writer [this bucket-name blob-name opts]
     (gcs-blob-writer gservice bucket-name blob-name opts))
-  (copy-blob [this from to opts]
-    (gcs-copy-blob this from to opts))
-  (move-blob [this from to opts]
-    (gcs-move-blob this from to opts)))
+  (copy-blob [this from to]
+    (gcs-copy-blob this from to))
+  (move-blob [this from to]
+    (gcs-move-blob this from to)))
 (alter-meta! #'->GCSStorageClient assoc :private true)
 
 (defn gcs-healthcheck
@@ -199,13 +199,13 @@
   (fs-blob-file base-path bucket path))
 
 (defn- fs-copy-blob
-  [base-path from to opts]
+  [base-path from to]
   (let [to* (bucket+path->file base-path to)]
     (mkdirs to*)
     (fs/copy (bucket+path->file base-path from) to*)))
 
 (defn- fs-move-blob
-  [base-path from to opts]
+  [base-path from to]
   (let [to* (bucket+path->file base-path to)]
     (mkdirs to*)
     (fs/rename (bucket+path->file base-path from) to*)))
@@ -216,10 +216,10 @@
   (exists? [_ bucket blob-name] (fs-exists base-path bucket blob-name))
   (blob-writer [_ bucket blob-name opts]
     (fs-blob-writer base-path bucket blob-name opts))
-  (copy-blob [_ from to opts]
-    (fs-copy-blob base-path from to opts))
-  (move-blob [_ from to opts]
-    (fs-move-blob base-path from to opts)))
+  (copy-blob [_ from to]
+    (fs-copy-blob base-path from to))
+  (move-blob [_ from to]
+    (fs-move-blob base-path from to)))
 (alter-meta! #'->FileSystemStorageClient assoc :private true)
 
 (defn ->file-system-storage-client
