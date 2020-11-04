@@ -88,7 +88,7 @@
   [^Storage gservice [from-bucket-name from-blob-name] [to-bucket-name to-blob-name]]
   (let [from-blob (gcs-get-blob gservice from-bucket-name from-blob-name)]
     (.copyTo from-blob ^String to-bucket-name ^String to-blob-name (make-array Blob$BlobSourceOption 0))
-    (.delete from-blob)))
+    (.delete from-blob (make-array Blob$BlobSourceOption 0))))
 
 (defrecord GCSStorageClient [^Storage gservice]
   clj-gcp.storage.core/StorageClient
