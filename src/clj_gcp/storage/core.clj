@@ -200,11 +200,15 @@
 
 (defn- fs-copy-blob
   [base-path from to]
-  (fs/copy (bucket+path->file base-path from) (bucket+path->file base-path to)))
+  (let [to* (bucket+path->file base-path to)]
+    (mkdirs to*)
+    (fs/copy (bucket+path->file base-path from) to*)))
 
 (defn- fs-move-blob
   [base-path from to]
-  (fs/rename (bucket+path->file base-path from) (bucket+path->file base-path to)))
+  (let [to* (bucket+path->file base-path to)]
+    (mkdirs to*)
+    (fs/rename (bucket+path->file base-path from) to*)))
 
 (defrecord FileSystemStorageClient [base-path]
   StorageClient
