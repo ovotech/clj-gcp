@@ -80,15 +80,15 @@
      nio-writer)))
 
 (defn- gcs-copy-blob
-  [gservice [from-bucket-name from-blob-name] [to-bucket-name to-blob-name]]
+  [^Storage gservice [from-bucket-name from-blob-name] [to-bucket-name to-blob-name]]
   (let [from-blob (gcs-get-blob gservice from-bucket-name from-blob-name)]
-    (.copyTo from-blob to-bucket-name to-blob-name)))
+    (.copyTo from-blob ^String to-bucket-name ^String to-blob-name (make-array Blob$BlobSourceOption 0))))
 
 (defn- gcs-move-blob
-  [gservice [from-bucket-name from-blob-name] [to-bucket-name to-blob-name]]
+  [^Storage gservice [from-bucket-name from-blob-name] [to-bucket-name to-blob-name]]
   (let [from-blob (gcs-get-blob gservice from-bucket-name from-blob-name)]
-    (.copyTo from-blob to-bucket-name to-blob-name)
-    (.delete from-blob)))
+    (.copyTo from-blob ^String to-bucket-name ^String to-blob-name (make-array Blob$BlobSourceOption 0))
+    (.delete from-blob (make-array Blob$BlobSourceOption 0))))
 
 (defrecord GCSStorageClient [^Storage gservice]
   clj-gcp.storage.core/StorageClient
@@ -99,9 +99,9 @@
   (blob-writer [this bucket-name blob-name opts]
     (gcs-blob-writer gservice bucket-name blob-name opts))
   (copy-blob [this from to]
-    (gcs-copy-blob this from to))
+    (gcs-copy-blob gservice from to))
   (move-blob [this from to]
-    (gcs-move-blob this from to)))
+    (gcs-move-blob gservice from to)))
 (alter-meta! #'->GCSStorageClient assoc :private true)
 
 (defn gcs-healthcheck

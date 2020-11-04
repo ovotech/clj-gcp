@@ -43,7 +43,34 @@
         (is (= exp-contentType contentType))
         (is (= exp-contentEncoding contentEncoding))
         (is (= exp-metadata metadata))
-        (is (= exp-content (slurp inputStream)))))))
+        (is (= exp-content (slurp inputStream)))))
+    (testing "copy blob"
+      (let [cp-blob-name (str blob-name ".cp")
+            _ (sut/copy-blob sut [bucket-name blob-name] [bucket-name cp-blob-name])
+            {:keys [inputStream md5Hash contentType source
+                    contentEncoding metadata],
+             :as   got} (sut/get-blob sut bucket-name cp-blob-name)]
+        (is (sut/exists? sut bucket-name blob-name))
+        (tu/is-valid ::sut/blob got)
+        (is (= (str "gs://" bucket-name "/" cp-blob-name) source))
+        (is (= exp-contentType contentType))
+        (is (= exp-contentEncoding contentEncoding))
+        (is (= exp-metadata metadata))
+        (is (= exp-content (slurp inputStream)))
+        (testing "move blob"
+          (let [mv-blob-name (str blob-name ".mv")
+                _ (sut/move-blob sut [bucket-name cp-blob-name] [bucket-name mv-blob-name])
+                {:keys [inputStream md5Hash contentType source
+                        contentEncoding metadata],
+                 :as   got}
+                (sut/get-blob sut bucket-name mv-blob-name)]
+            (is (not (sut/exists? sut bucket-name cp-blob-name)))
+            (tu/is-valid ::sut/blob got)
+            (is (= (str "gs://" bucket-name "/" mv-blob-name) source))
+            (is (= exp-contentType contentType))
+            (is (= exp-contentEncoding contentEncoding))
+            (is (= exp-metadata metadata))
+            (is (= exp-content (slurp inputStream)))))))))
 
 (deftest ^:integration gcs-get-non-existing-blob-test
   (let [sut (sut/->gcs-storage-client gcp-project-id)]
