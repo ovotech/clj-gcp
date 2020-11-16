@@ -62,7 +62,9 @@
                          :metadata (into {} (.getMetadata blob)))
            (s/assert ::blob)))
     (throw (ex-info "no such blob"
-                    {:blob-name blob-name, :bucket-name bucket-name}))))
+                    {:cause :no-such-blob
+                     :blob-name blob-name,
+                     :bucket-name bucket-name}))))
 
 (defn- gcs-blob-writer
   ([gservice bucket-name blob-name]
