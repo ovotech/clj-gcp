@@ -178,7 +178,8 @@
               :source (str (fs/normalized blobf))}
              (fs-blob-info base-path bucket-name blob-name))
       (throw (ex-info "no such blob"
-                      {:blob-name blob-name,
+                      {:cause :no-such-blob
+                       :blob-name blob-name,
                        :bucket-name bucket-name,
                        :base-path base-path,
                        :blob-file blobf})))))
