@@ -10,9 +10,9 @@
 
                  [cheshire "5.10.0"]
                  [clj-commons/fs "1.5.2"]
-                 [com.google.cloud/google-cloud-pubsub "1.108.1"]
-                 [com.google.oauth-client/google-oauth-client "1.31.0"]
-                 [com.google.cloud/google-cloud-storage "1.113.1"
+                 [com.google.cloud/google-cloud-pubsub "1.110.0"]
+                 [com.google.oauth-client/google-oauth-client "1.31.2"]
+                 [com.google.cloud/google-cloud-storage "1.113.4"
                   :exclusions [com.google.oauth-client/google-oauth-client]]
                  [digest "1.4.9"]
                  [iapetos "0.1.8"]
@@ -29,7 +29,7 @@
   :test-selectors {:default     (complement :integration)
                    :integration :integration}
 
-  :profiles {:dev {:dependencies [[expound "0.8.5"]]
+  :profiles {:dev {:dependencies [[expound "0.8.7"]]
                    :plugins [[lein-ancient "0.6.15"]]}
              :ci  {:deploy-repositories
                    [["clojars" {:url           "https://clojars.org/repo"
