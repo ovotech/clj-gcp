@@ -1,4 +1,4 @@
-(defproject ovotech/clj-gcp "0.6.14"
+(defproject ovotech/clj-gcp "0.6.15"
 
   :description "Clojure utilities for the Google Cloud Platform"
 
